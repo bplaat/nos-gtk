@@ -15,6 +15,20 @@ Gtk.Image article_page_image;
 Gtk.Label article_page_title;
 Gtk.Box article_page_content;
 
+void loadImage(Gtk.Image image, string image_url, int width, int height) {
+    var message = new Soup.Message("GET", image_url);
+    session.queue_message(message, (sess, mess) => {
+        try {
+            var image_loader = new Gdk.PixbufLoader();
+            image_loader.write(message.response_body.data);
+            image.pixbuf = image_loader.get_pixbuf().scale_simple(width, height, Gdk.InterpType.NEAREST);
+            image_loader.close();
+        } catch (Error error) {
+            print("%s\n", error.message);
+        }
+    });
+}
+
 void addList(string name, string rss_url) {
     var articles = new List<Article>();
 
@@ -22,14 +36,14 @@ void addList(string name, string rss_url) {
     list_page.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
     lists_page.add_titled(list_page, name, name);
 
-    var listbox = new Gtk.FlowBox();
-    listbox.selection_mode = Gtk.SelectionMode.NONE;
-    listbox.min_children_per_line = 1;
-    listbox.max_children_per_line = 6;
-    listbox.row_spacing = 8;
-    listbox.column_spacing = 8;
+    var flowbox = new Gtk.FlowBox();
+    flowbox.selection_mode = Gtk.SelectionMode.NONE;
+    flowbox.min_children_per_line = 1;
+    flowbox.max_children_per_line = 6;
+    flowbox.row_spacing = 8;
+    flowbox.column_spacing = 8;
 
-    listbox.child_activated.connect((row) => {
+    flowbox.child_activated.connect((row) => {
         var article = articles.nth_data(row.get_index());
         back_button.show();
 
@@ -37,17 +51,7 @@ void addList(string name, string rss_url) {
         headerbar.title = article.title;
         headerbar.set_custom_title(null);
 
-        var image_message = new Soup.Message("GET", article.image_url);
-        session.queue_message(image_message, (sess, mess) => {
-            try {
-                var loader = new Gdk.PixbufLoader();
-                loader.write(image_message.response_body.data);
-                article_page_image.pixbuf = loader.get_pixbuf().scale_simple(504, 284, Gdk.InterpType.NEAREST);;
-                loader.close();
-            } catch (Error error) {
-                print("%s\n", error.message);
-            }
-        });
+        loadImage(article_page_image, article.image_url, 504, 284);
 
         article_page_title.label = article.title;
 
@@ -67,9 +71,9 @@ void addList(string name, string rss_url) {
 
         main_stack.set_visible_child(article_page);
     });
-    list_page.add(listbox);
+    list_page.add(flowbox);
 
-    var message = new Soup.Message("GET", "https://api.rss2json.com/v1/api.json?rss_url=" + rss_url + "&api_key=" + API_KEY + "&count=20");
+    var message = new Soup.Message("GET", "https://api.rss2json.com/v1/api.json?rss_url=" + Soup.URI.encode(rss_url, null) + "&api_key=" + API_KEY + "&count=20");
     session.queue_message(message, (sess, mess) => {
         try {
             var parser = new Json.Parser();
@@ -92,27 +96,16 @@ void addList(string name, string rss_url) {
                 box.border_width = 8;
 
                 var image = new Gtk.Image();
+                loadImage(image, article.image_url, 504, 284);
                 box.add(image);
-
-                var image_message = new Soup.Message("GET", article.image_url);
-                session.queue_message(image_message, (sess, mess) => {
-                    try {
-                        var loader = new Gdk.PixbufLoader();
-                        loader.write(image_message.response_body.data);
-                        image.pixbuf = loader.get_pixbuf().scale_simple(504, 284, Gdk.InterpType.NEAREST);
-                        loader.close();
-                    } catch (Error error) {
-                        print("%s\n", error.message);
-                    }
-                });
 
                 var label = new Gtk.Label(article.title);
                 label.get_style_context().add_class("article-title");
                 box.add(label);
 
-                listbox.insert(box, -1);
+                flowbox.add(box);
             }
-            listbox.show_all();
+            flowbox.show_all();
         } catch (Error error) {
             print("%s\n", error.message);
         }
@@ -167,8 +160,11 @@ int main(string[] args) {
     headerbar.set_custom_title(lists_page_switcher);
 
     addList("Laatste", "http://feeds.nos.nl/nosnieuwsalgemeen");
-    addList("Sport", "http://feeds.nos.nl/nossportalgemeen");
+    addList("Binnenland", "http://feeds.nos.nl/nosnieuwsbinnenland");
+    addList("Buitenland", "http://feeds.nos.nl/nosnieuwsbuitenland");
+    addList("Economie", "http://feeds.nos.nl/nosnieuwseconomie");
     addList("Tech", "http://feeds.nos.nl/nosnieuwstech");
+    addList("Sport", "http://feeds.nos.nl/nossportalgemeen");
 
     article_page = new Gtk.ScrolledWindow(null, null);
     article_page.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
