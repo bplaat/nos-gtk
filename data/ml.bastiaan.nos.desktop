@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=NOS
+Categories=Network;
+Exec=ml.bastiaan.nos
+Terminal=false
+Type=Application

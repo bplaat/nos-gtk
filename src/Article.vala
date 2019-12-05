@@ -2,8 +2,8 @@ class Article : Object {
     private string _title;
     private string _image_url;
     private List<Line> _lines;
-    private bool add_header = false;
-    private bool add_paragraph = false;
+    private bool parser_add_header = false;
+    private bool parser_add_paragraph = false;
 
     public Article(string title, string image_url, string content) {
         _title = title;
@@ -19,23 +19,23 @@ class Article : Object {
     }
 
     private void parser_start(MarkupParseContext context, string name, string[] attr_names, string[] attr_values) throws MarkupError {
-        if (name == "h2") add_header = true;
-        if (name == "p") add_paragraph = true;
+        if (name == "h2") parser_add_header = true;
+        if (name == "p") parser_add_paragraph = true;
     }
 
     private void parser_end(MarkupParseContext context, string name) throws MarkupError {
-        add_header = false;
-        add_paragraph = false;
+        parser_add_header = false;
+        parser_add_paragraph = false;
     }
 
     private void parser_text(MarkupParseContext context, string text, size_t text_length) throws MarkupError {
-        if (add_header) {
+        if (parser_add_header) {
             _lines.append(new Line(text, true));
-            add_header = false;
+            parser_add_header = false;
         }
-        if (add_paragraph) {
+        if (parser_add_paragraph) {
             _lines.append(new Line(text, false));
-            add_paragraph = false;
+            parser_add_paragraph = false;
         }
     }
 
