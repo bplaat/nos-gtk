@@ -27,7 +27,12 @@ public class App : Gtk.Application {
         try {
             var screen = Gdk.Screen.get_default();
             var provider = new Gtk.CssProvider();
-            provider.load_from_file(File.new_for_path("style.css"));
+            provider.load_from_data("""
+.article-title { font-size: 14px; font-weight: bold; }
+.article-header { font-size: 24px; font-weight: bold; }
+.article-subheader { font-size: 18px; font-weight: bold; }
+.article-paragraph { font-size: 16px; }
+""", -1);
             Gtk.StyleContext.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
         } catch (Error error) {
             print("%s\n", error.message);
