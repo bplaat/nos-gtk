@@ -43,7 +43,6 @@ public class App : Gtk.Application {
         window = new Gtk.ApplicationWindow(this);
         window.default_width = 1280;
         window.default_height = 720;
-        window.title = "NOS";
 
         headerbar = new Gtk.HeaderBar();
         headerbar.title = "NOS";
@@ -54,7 +53,6 @@ public class App : Gtk.Application {
         back_button.clicked.connect(() => {
             main_stack.set_visible_child(lists_page);
             back_button.hide();
-            window.title = "NOS";
             headerbar.title = "NOS";
             headerbar.set_custom_title(lists_page_switcher);
         });
@@ -138,7 +136,6 @@ public class App : Gtk.Application {
             var article = articles.nth_data(row.get_index());
             back_button.show();
 
-            window.title = article.title + " - NOS";
             headerbar.title = article.title;
             headerbar.set_custom_title(null);
 
