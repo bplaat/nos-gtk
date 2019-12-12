@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=NOS
+Icon=applications-internet
 Categories=Network;
 Exec=ml.bastiaan.nos
 Terminal=false

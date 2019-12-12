@@ -41,6 +41,7 @@ public class App : Gtk.Application {
         session = new Soup.Session();
 
         window = new Gtk.ApplicationWindow(this);
+        window.icon_name = "applications-internet";
         window.default_width = 1280;
         window.default_height = 720;
 
