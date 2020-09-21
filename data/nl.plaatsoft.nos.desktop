@@ -2,6 +2,6 @@
 Name=NOS
 Icon=applications-internet
 Categories=Network;
-Exec=ml.bastiaan.nos
+Exec=nl.plaatsoft.nos
 Terminal=false
 Type=Application
